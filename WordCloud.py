@@ -30,25 +30,25 @@ def fetch_url_content(url):
     return buffer.getvalue().decode('utf-8')
 
 
-def generate_wordcloud(text, output_filename):
+def generate_wordcloud(text, font, baseImage, output_filename):
     twitter = Okt()
     pos_tagged = twitter.pos(text)
 
     # noun_adj_list = [word for word, tag in pos_tagged if tag in ['Noun', 'Adjective']]
-    noun_adj_list = [word for word, tag in pos_tagged if tag in ['Noun', 'Adjective', 'Verb', 'Alpha']]
+    noun_adj_list = [word for word, tag in pos_tagged if tag in ['Noun', 'Adjective']]
 
-    exclude_words = ['입니다', '의', '이']
+    exclude_words = ['입니다', '의', '이', '창']
     noun_adj_list = [word for word in noun_adj_list if word not in exclude_words]
 
     print(noun_adj_list)
     counts = Counter(noun_adj_list)
     tags = counts.most_common(600)
 
-    masking_image = np.array(Image.open("images/sunflower.png"))
+    masking_image = np.array(Image.open("images/{}.png".format(baseImage)))
 
     # Create a word cloud instance with mask
     wc = WordCloud(
-        font_path="C:/Windows/Fonts/malgun.ttf",  # Or your desired font path
+        font_path="font/{}/{}.otf".format(font, font),
         mask=masking_image,
         background_color='white',
         max_font_size=300,
@@ -64,12 +64,14 @@ def generate_wordcloud(text, output_filename):
     wc.to_file(output_filename)
 
 
+"""
+
 if __name__ == "__main__":
     url = "https://search.naver.com/search.naver?ie=UTF-8&sm=whl_hty&query=%EA%B1%B0%EB%B6%81%EC%84%AC+%EB%A7%9B%EC%A7%91"
     content = fetch_url_content(url)
     if content:
         generate_wordcloud(content, "result/result.png")
-
+"""
 # ssl 오류 주소
 # https://www.bok.or.kr/portal/bbs/B0000347/view.do?nttId=10080997&menuNo=201106
 # bot 방지 주소(success)
