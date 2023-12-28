@@ -9,6 +9,7 @@ async def receive_data(data: DataModel):
     print(data.font)
     print(data.baseImage)
     print(data.urls)
+    print(data.excludeWords)
 
     all_content = ""  # Initialize a variable to store the combined content
 
@@ -19,7 +20,7 @@ async def receive_data(data: DataModel):
 
     if all_content:
         output_filename = f"result/result_{data.baseImage}_{data.font}.png"
-        generate_wordcloud(all_content, data.font, data.baseImage, output_filename)
+        generate_wordcloud(all_content, data.font, data.baseImage, output_filename,data.excludeWords )
 
     return {"message": "Word cloud generated successfully from all URLs"}
 

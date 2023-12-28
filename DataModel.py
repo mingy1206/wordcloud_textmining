@@ -6,3 +6,4 @@ class DataModel(BaseModel):
     font: str
     baseImage: str
     urls: List[str]
+    excludeWords: List[str]

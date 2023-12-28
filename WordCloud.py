@@ -35,13 +35,13 @@ def fetch_url_content(url):
 
 
 
-def generate_wordcloud(text, font, baseImage, output_filename):
+def generate_wordcloud(text, font, baseImage, output_filename, ew):
     pos_tagged = Okt().pos(text)
     print(pos_tagged)
     noun_adj_list = [word for word, tag in pos_tagged if tag in ['Noun', 'Adjective']]
     print(noun_adj_list)
 
-    exclude_words = []  # Define your exclude words here
+    exclude_words = ew
     filtered_words = [word for word in noun_adj_list if word not in exclude_words]
 
     counts = Counter(filtered_words)
@@ -65,7 +65,8 @@ def generate_wordcloud(text, font, baseImage, output_filename):
 
     # Save to file
     wc.to_file(output_filename)
-
+    print(exclude_words)
+    print(ew)
 
 """
 
