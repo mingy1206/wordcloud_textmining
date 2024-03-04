@@ -12,20 +12,20 @@ class CustomComboBox(QComboBox):
     def __init__(self, placeholder, *args, **kwargs):
         super(CustomComboBox, self).__init__(*args, **kwargs)
         self.placeholder = placeholder
-        self.addItem(self.placeholder)  # Add placeholder as the first item
-        self.isPlaceholderVisible = True  # Flag to track placeholder visibility
+        self.addItem(self.placeholder)  # placeholder 첫 번째 항목으로 추가
+        self.isPlaceholderVisible = True  # 표시 여부를 추적하는 flag
 
     def mousePressEvent(self, event: QMouseEvent):
-        if self.isPlaceholderVisible:  # Check if the placeholder is visible
-            self.removeItem(0)  # Remove the placeholder item
-            self.isPlaceholderVisible = False  # Update the flag
-        super(CustomComboBox, self).mousePressEvent(event)  # Call the base class event
+        if self.isPlaceholderVisible:  # placeholder 표시되는지 확인
+            self.removeItem(0)  # placeholder 항목 제거
+            self.isPlaceholderVisible = False  # flag 업데이트
+        super(CustomComboBox, self).mousePressEvent(event)  # event 호출
 
     def showPopup(self):
-        if self.count() == 0:  # If all items are removed, re-add the placeholder before showing the popup
+        if self.count() == 0:  # 모든 항목이 제거되면 팝업 표시 전에 placeholder 다시 추가
             self.addItem(self.placeholder)
             self.isPlaceholderVisible = True
-        super(CustomComboBox, self).showPopup()  # Show the dropdown list
+        super(CustomComboBox, self).showPopup()  # 드롭다운 목록 표시
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -90,12 +90,12 @@ class MainWindow(QWidget):
         urlLayout = QHBoxLayout()
         urlInput = QLineEdit(self)
         addButton = QPushButton("Add URL", self)
-        addButton.clicked.connect(self.addUrlInput)  # Connect the click event to addUrlInput function
+        addButton.clicked.connect(self.addUrlInput)
         deleteButton = QPushButton("Delete", self)
         deleteButton.clicked.connect(lambda: self.deleteInput(urlLayout, self.urlLayout))
         addButton.setFixedSize(150,30)
 
-        urlInput.setFixedSize(500, 30)  # Example: 200 width and 30 height
+        urlInput.setFixedSize(500, 30)
         urlInput.setPlaceholderText("Enter URL here")
 
         urlLayout.addWidget(urlInput)
@@ -107,13 +107,13 @@ class MainWindow(QWidget):
         wordLayout = QHBoxLayout()
         wordInput = QLineEdit(self)
         addButton = QPushButton("Add Exclude Word", self)
-        addButton.clicked.connect(self.addExcludeWordInput)  # Connect the click event to addExcludeWordInput function
+        addButton.clicked.connect(self.addExcludeWordInput)
         deleteButton = QPushButton("Delete", self)
         deleteButton.clicked.connect(lambda: self.deleteInput(wordLayout, self.excludeWordLayout))
         addButton.setFixedSize(150,30)
 
 
-        wordInput.setFixedSize(500, 30)  # Use the same dimensions as for the URL input
+        wordInput.setFixedSize(500, 30)
         wordInput.setPlaceholderText("Enter exclude word here")
 
         wordLayout.addWidget(wordInput)
@@ -126,12 +126,12 @@ class MainWindow(QWidget):
         wordLayout = QHBoxLayout()
         wordInput = QLineEdit(self)
         addButton = QPushButton("Add Train Word", self)
-        addButton.clicked.connect(self.addTrainWordInput)  # Connect the click event to addUrlInput function
+        addButton.clicked.connect(self.addTrainWordInput)
         deleteButton = QPushButton("Delete", self)
         deleteButton.clicked.connect(lambda: self.deleteInput(wordLayout, self.trainWordLayout))
         addButton.setFixedSize(150,30)
 
-        wordInput.setFixedSize(500, 30)  # Example: 200 width and 30 height
+        wordInput.setFixedSize(500, 30)
         wordInput.setPlaceholderText("Enter train word here")
 
         wordLayout.addWidget(wordInput)
@@ -150,21 +150,21 @@ class MainWindow(QWidget):
             print("BaseImage 선택됨:", self.baseImageSelector.currentText())
 
     def onFontChanged(self, index):
-        if index > 0:  # Assuming the first item is the placeholder
-            # Remove placeholder if not already removed
+        if index > 0:  #  첫 번째 항목이 placeholder라고 가정
+            # 제거X -> 제거
             if self.fontSelector.itemText(0) == "Select Font":
                 self.fontSelector.removeItem(0)
 
     # Handle the case if needed, for example, if the user can deselect a font
 
     def onBaseImageChanged(self, index):
-        if index > 0:  # Assuming the first item is the placeholder
-            # Remove placeholder if not already removed
+        if index > 0:  #  첫 번째 항목이 placeholder라고 가정
+            # 제거X -> 제거
             if self.baseImageSelector.itemText(0) == "Select Base Image":
                 self.baseImageSelector.removeItem(0)
 
     def deleteInput(self, inputLayout, parentLayout):
-        # Check if this is the last input field
+        # 마지막 필드임을 확인 (1개보다 작은지)
         if parentLayout.count() <= 1:
             QMessageBox.warning(self, "Warning", "At least one input must exist.")
         else:
@@ -176,20 +176,17 @@ class MainWindow(QWidget):
             parentLayout.removeItem(inputLayout)
 
     def onSubmit(self):
-        # Assuming you've validated input as before...
-
-        # Collect URLs from the GUI
+        # GUI에서 URL을 수집
         urls = [self.urlLayout.itemAt(i).layout().itemAt(0).widget().text() for i in range(self.urlLayout.count())]
 
-        # Collect exclude words from the GUI
+        # GUI에서 제외할 단어를 수집
         exclude_words = [self.excludeWordLayout.itemAt(i).layout().itemAt(0).widget().text() for i in
                          range(self.excludeWordLayout.count())]
 
         train_words = [self.trainWordLayout.itemAt(i).layout().itemAt(0).widget().text() for i in
                          range(self.trainWordLayout.count())]
-
+        #Check and Warnings
         if self.fontSelector.currentText() == "Font":
-            # Show a warning message
             QMessageBox.warning(self, "Warning", "Please select a font.")
             return
 
@@ -197,8 +194,6 @@ class MainWindow(QWidget):
         if self.baseImageSelector.currentText() == "Base Image":            # Show a warning message
             QMessageBox.warning(self, "Warning", "Please select a base image.")
             return
-
-        # Check if any URL is empty
         url_count = self.urlLayout.count()
         has_at_least_one_url = False
         for i in range(url_count):
@@ -213,20 +208,18 @@ class MainWindow(QWidget):
             return
 
 
-        # Process each URL
+        # URL로 이동 후 데이터 전처리
         all_content = fetch_contents_from_urls(urls)
 
         if all_content:
-            # Assuming 'font' and 'baseImage' are selected by the user in the GUI
             font = self.fontSelector.itemData(self.fontSelector.currentIndex())
             baseImage = self.baseImageSelector.currentText()
             print(font)
             print(baseImage)
-            # Generate word cloud
+            # 워드 클라우드 생성
             wordcloud_result = generate_wordcloud(all_content, font, baseImage, exclude_words,train_words)
 
             print(wordcloud_result["tags"])
-            # Here, you can also update the GUI to show the generated word cloud image or the path to it
 
 
 

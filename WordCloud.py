@@ -1,6 +1,6 @@
 import os
 from collections import Counter
-from konlpy.tag import Mecab
+from konlpy.tag import Mecab # 한국어 형태소 분석기 Konlpy의 Mecab 모듈
 
 import numpy as np
 import pandas as pd
@@ -13,6 +13,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from wordcloud import WordCloud, ImageColorGenerator
 from jamo import h2j, j2hcj
+
+
 
 """
 import chardet
@@ -73,9 +75,9 @@ def fetch_contents_from_urls(urls):
     return all_content
 
 def fetch_url_content_selenium(url):
-    # Set up Chrome options for Selenium
+    # 셀레니움에서 사용할 Chrom driver 설정
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Run in headless mode (no browser UI)
+    options.add_argument("--headless")  # 브라우저 UI 없이 실행
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -92,7 +94,7 @@ def fetch_url_content_selenium(url):
     try:
         driver.get(url)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-        # 메인 페이지의 콘텐츠 가져오기
+        # 메인 페이지 콘텐츠 가져오기
         content += driver.find_element(By.TAG_NAME, 'body').text
         print(content)
         # 페이지 내의 모든 iframe 처리
@@ -104,7 +106,8 @@ def fetch_url_content_selenium(url):
                 driver.switch_to.default_content()
             except Exception as e:
                 print(f"Error occurred in iframes: {e}")
-                # 오류가 발생해도 다음 iframe으로 계속 진행
+                # 오류 발생 후 다시 iframe으로 계속 진행(error print만 진행)
+                # 해당 문절에서 iframe 오류는 iframe으로 들어갔지만 내용이 없을 때이기 때문에 다시 반복
 
         return content
     except Exception as e:
@@ -113,7 +116,7 @@ def fetch_url_content_selenium(url):
     finally:
         driver.quit()
 
-
+# 워드 클라우드를 생성하는 함수입니다.
 def generate_wordcloud(content, font, baseImage, ew, tw):
     print(tw)
     tword = []
@@ -153,17 +156,18 @@ def generate_wordcloud(content, font, baseImage, ew, tw):
     masking_image = np.array(Image.open("images/{}.png".format(baseImage)))
     print(tags)
 
-    # Create a word cloud instance with mask
+    # 워드클라우드 인스턴스 설정
     wc = WordCloud(
         font_path="font/{}/{}.otf".format(font, font),
-        mask=masking_image,
+        mask=masking_image, # 마스크 이미지를 적용합니다.
         background_color='white',
         max_font_size=300,
         min_font_size=1,
         max_words=1000
     ).generate_from_frequencies(dict(tags))
 
-    # Use the colors from the mask image for the word cloud
+    # 마스크 이미지의 색상을 사용하여 워드 클라우드의 색상을 조정합니다.
+    # 글자의 색이 base image의 색과 자연스럽게 어울리게 됨
     image_colors = ImageColorGenerator(masking_image)
     wc = wc.recolor(color_func=image_colors)
 
@@ -186,8 +190,8 @@ def train_word(tw):
         for line in user_dict:
             f.write(line)
 
-    os.system('cd venv/Lib/site-packages/mecab/tools')
-    os.system('.\add-userdic-win.ps1')
+    os.system('cd venv/Lib/site-packages/mecab/tools') # add-userdic-win.ps1와 mecab-ko-dic의 위치로 이동
+    os.system('.\add-userdic-win.ps1') # csv 파일 수정 후 빌드(꼭 필요)
 
 
 
