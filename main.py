@@ -48,7 +48,7 @@ class MainWindow(QWidget):
         # Base Image Selector with title
         self.layout.addWidget(QLabel("배경 이미지:"))  # 기본 이미지 선택 섹션의 타이틀 추가
         self.baseImageSelector = CustomComboBox("Base Image", self)
-        self.baseImageSelector.addItems(["고래", "나비", "두뇌", "말"])
+        self.baseImageSelector.addItems(["거북이", "고래", "나비", "두뇌", "말", "부엉이", "새", "코끼리"])
         self.layout.addWidget(self.baseImageSelector)
 
         # URL Input List with title
@@ -84,7 +84,7 @@ class MainWindow(QWidget):
         mainLayout.addWidget(self.scrollArea)  # 스크롤 영역을 메인 레이아웃에 추가
 
         self.setGeometry(300, 300, 850, 400)  # 윈도우의 위치와 크기 설정
-        self.setWindowTitle('Scrollable UI Example')  # 윈도우 타이틀 설정
+        self.setWindowTitle('WordCloud Maker')  # 윈도우 타이틀 설정
         self.show()
     def addUrlInput(self):
         urlLayout = QHBoxLayout()
@@ -132,7 +132,7 @@ class MainWindow(QWidget):
         addButton.setFixedSize(150,30)
 
         wordInput.setFixedSize(500, 30)  # Example: 200 width and 30 height
-        wordInput.setPlaceholderText("Enter URL here")
+        wordInput.setPlaceholderText("Enter train word here")
 
         wordLayout.addWidget(wordInput)
         wordLayout.addWidget(addButton)

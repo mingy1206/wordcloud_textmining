@@ -1,17 +1,19 @@
+import os
+from collections import Counter
+from konlpy.tag import Mecab
+
 import numpy as np
 import pandas as pd
-from wordcloud import WordCloud, ImageColorGenerator
-from konlpy.tag import Okt
-from collections import Counter
-
 from PIL import Image
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
+from wordcloud import WordCloud, ImageColorGenerator
+from jamo import h2j, j2hcj
+
 """
 import chardet
 import pycurl
@@ -47,6 +49,20 @@ def fetch_url_content(url):
             # Fallback to 'latin-1' or 'ignore' errors
             return raw_data.decode('latin-1', errors='ignore')
 """
+
+def get_jongsung_TF(sample_text):
+    sample_text_list = list(sample_text)
+    last_word = sample_text_list[-1]
+    last_word_jamo_list = list(j2hcj(h2j(last_word)))
+    last_jamo = last_word_jamo_list[-1]
+
+    jongsung_TF = "T"
+
+    if last_jamo in ['ㅏ', 'ㅑ', 'ㅓ', 'ㅕ', 'ㅗ', 'ㅛ', 'ㅜ', 'ㅠ', 'ㅡ', 'ㅣ', 'ㅘ', 'ㅚ', 'ㅙ', 'ㅝ', 'ㅞ', 'ㅢ', 'ㅐ', 'ㅔ', 'ㅟ', 'ㅖ', 'ㅒ']:
+        jongsung_TF = "F"
+
+    return jongsung_TF
+
 
 def fetch_contents_from_urls(urls):
     all_content = ""
@@ -98,11 +114,32 @@ def fetch_url_content_selenium(url):
         driver.quit()
 
 
-def generate_wordcloud(content, font, baseImage, ew,tw):
-    pos_tagged = Okt().pos(content)
-    noun_adj_list = [word for word, tag in pos_tagged if tag in ['Noun', 'Adjective']]
+def generate_wordcloud(content, font, baseImage, ew, tw):
+    print(tw)
+    tword = []
+    for check in tw:
+        if check != '':
+            tword.append(check)
+        print("if")
+        print(tword)
+        print(len(tword))
+        train_word(tword)
+
+    else :
+        print("else")
+        print(tw)
+        print(len(tw))
+
+    pos_tagged = Mecab("venv/Lib/site-packages/mecab/tools/mecab-ko-dic").pos(content)
+    print("-------------------content--------------------------")
+    print(content)
+    print("------------------pos_tagged--------------------------")
+    print(pos_tagged)
+    print("------------------noun_adj_list--------------------------")
+    noun_adj_list = [word for word, tag in pos_tagged if tag in ['NNG', 'SL', 'NNP', 'VA+ETM', 'SH']]
     print(noun_adj_list)
-    exclude_words = ew + ['블로그', '글', '이미지','아이디' '광고', '네이버','이웃','댓글','움','창', '초', '시']
+    print("------------------finish--------------------------")
+    exclude_words = ew + ['블로그', '글', '이미지','아이디','검색', '광고', '네이버','이웃','댓글','움','창', '초', '시']
     k_stopword = pd.read_csv('korean_stopword.csv')
     k_stopword = list(k_stopword['불용어'])
     exclude_words = exclude_words +k_stopword
@@ -123,7 +160,7 @@ def generate_wordcloud(content, font, baseImage, ew,tw):
         background_color='white',
         max_font_size=300,
         min_font_size=1,
-        max_words=600
+        max_words=1000
     ).generate_from_frequencies(dict(tags))
 
     # Use the colors from the mask image for the word cloud
@@ -136,15 +173,25 @@ def generate_wordcloud(content, font, baseImage, ew,tw):
 
     return {"tags": tags, "image_path": output_filename}
 
+def train_word(tw):
+    with open('venv/Lib/site-packages/mecab/tools/mecab-ko-dic/NNP.csv', "r", encoding='utf-8') as f:
+        user_dict = f.readlines()
 
-"""
+    for word in tw:
+        jongsung_TF = get_jongsung_TF(word)
+        line = '{},*,*,*,NNP,*,{},{},*,*,*,*,*\n'.format(word, jongsung_TF, word)
+        user_dict.append(line)
 
-if __name__ == "__main__":
-    url = "https://search.naver.com/search.naver?ie=UTF-8&sm=whl_hty&query=%EA%B1%B0%EB%B6%81%EC%84%AC+%EB%A7%9B%EC%A7%91"
-    content = fetch_url_content(url)
-    if content:
-        generate_wordcloud(content, "result/result.png")
-"""
+    with open('venv/Lib/site-packages/mecab/tools/mecab-ko-dic/NNP.csv', 'w', encoding='utf-8') as f:
+        for line in user_dict:
+            f.write(line)
+
+    os.system('cd venv/Lib/site-packages/mecab/tools')
+    os.system('.\add-userdic-win.ps1')
+
+
+
+
 # ssl 오류 주소
 # https://www.bok.or.kr/portal/bbs/B0000347/view.do?nttId=10080997&menuNo=201106
 # bot 방지 주소(success)
