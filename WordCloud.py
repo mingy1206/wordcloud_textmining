@@ -1,5 +1,9 @@
 import os
+import shutil
+import subprocess
 from collections import Counter
+import tkinter as tk
+from tkinter import filedialog
 from konlpy.tag import Mecab # 한국어 형태소 분석기 Konlpy의 Mecab 모듈
 
 import numpy as np
@@ -67,14 +71,18 @@ def get_jongsung_TF(sample_text):
 
 
 def fetch_contents_from_urls(urls):
+    print("Start")
+    count= 1
     all_content = ""
     for url in urls:
-        content = fetch_url_content_selenium(url)  # 앞서 정의한 함수 사용
+        content = fetch_url_content_selenium(url, count)  # 앞서 정의한 함수 사용
+        count += 1
         if content:
             all_content += " " + content  # 콘텐츠를 모두 합침
     return all_content
 
-def fetch_url_content_selenium(url):
+def fetch_url_content_selenium(url,count):
+    print(count)
     # 셀레니움에서 사용할 Chrom driver 설정
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")  # 브라우저 UI 없이 실행
@@ -86,7 +94,6 @@ def fetch_url_content_selenium(url):
     options.add_argument("--disable-extensions")
     options.add_argument(
         'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
-    print(1)
     service = ChromeService(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -118,30 +125,20 @@ def fetch_url_content_selenium(url):
 
 # 워드 클라우드를 생성하는 함수입니다.
 def generate_wordcloud(content, font, baseImage, ew, tw):
-    print(tw)
     tword = []
     for check in tw:
         if check != '':
             tword.append(check)
-        print("if")
-        print(tword)
-        print(len(tword))
-        train_word(tword)
-
-    else :
-        print("else")
-        print(tw)
-        print(len(tw))
+            train_word(tword)
 
     pos_tagged = Mecab("venv/Lib/site-packages/mecab/tools/mecab-ko-dic").pos(content)
-    print("-------------------content--------------------------")
-    print(content)
-    print("------------------pos_tagged--------------------------")
+
+    print("------------------전체 가져온 tag--------------------------")
     print(pos_tagged)
-    print("------------------noun_adj_list--------------------------")
+    print("------------------선별된 형태소 tag--------------------------")
     noun_adj_list = [word for word, tag in pos_tagged if tag in ['NNG', 'SL', 'NNP', 'VA+ETM', 'SH']]
     print(noun_adj_list)
-    print("------------------finish--------------------------")
+    print("------------------최종 단어 제외 후 tag--------------------------")
     exclude_words = ew + ['블로그', '글', '이미지','아이디','검색', '광고', '네이버','이웃','댓글','움','창', '초', '시']
     k_stopword = pd.read_csv('korean_stopword.csv')
     k_stopword = list(k_stopword['불용어'])
@@ -174,7 +171,8 @@ def generate_wordcloud(content, font, baseImage, ew, tw):
     # Save to file
     output_filename = "result/result.png"
     wc.to_file(output_filename)
-
+    print("파일의 위치를 지정해주세요!")
+    save_tags_to_file(tags)
     return {"tags": tags, "image_path": output_filename}
 
 def train_word(tw):
@@ -189,14 +187,43 @@ def train_word(tw):
     with open('venv/Lib/site-packages/mecab/tools/mecab-ko-dic/NNP.csv', 'w', encoding='utf-8') as f:
         for line in user_dict:
             f.write(line)
-
-    os.system('cd venv/Lib/site-packages/mecab/tools') # add-userdic-win.ps1와 mecab-ko-dic의 위치로 이동
-    os.system('.\add-userdic-win.ps1') # csv 파일 수정 후 빌드(꼭 필요)
-
-
+    # csv 파일 수정 후 빌드(꼭 필요)
+    subprocess.run(["powershell", "Set-ExecutionPolicy", "Unrestricted", "-Force"], input="y", text=True)
+    subprocess.run(["powershell", "cd venv/Lib/site-packages/mecab/tools; echo y | .\\add-userdic-win.ps1"])# add-userdic-win.ps1와 mecab-ko-dic의 위치로 이동
 
 
-# ssl 오류 주소
+
+def save_tags_to_file(tags):
+    default_filename = "TextMining.txt"
+    image_filename = "result/result.png"
+
+    root = tk.Tk()
+    root.withdraw()
+
+    # 파일 대화 상자를 열어 사용자가 파일을 저장할 경로를 선택합니다.
+    file_path = filedialog.asksaveasfilename(defaultextension=".txt",
+                                             initialfile=default_filename,
+                                             filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+
+    if file_path:
+        with open(file_path, 'w', encoding='utf-8') as file:
+            for tag in tags:
+                file.write(f"{tag[0]}: {tag[1]}\n")
+
+    # 결과 이미지 파일 복사
+    shutil.copyfile(image_filename, os.path.join(os.path.dirname(file_path), "WordCloud.png"))
+
+    return file_path
+
+
+# 동적 주소 샘플
+# https://blog.naver.com/00eldnjsl/222577148347
+# https://blog.naver.com/r3gum/223206650211
+# https://blog.naver.com/rkarlcjstk1/223070485507
+# https://blog.naver.com/beskilled/223230575253
+
+# ssl 오류 주소 샘플
 # https://www.bok.or.kr/portal/bbs/B0000347/view.do?nttId=10080997&menuNo=201106
-# bot 방지 주소(success)
+
+# bot 방지 주소 샘플
 # https://www.hankyung.com/article/2023121216921

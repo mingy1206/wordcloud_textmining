@@ -4,8 +4,9 @@ from PyQt5.QtCore import QVariant
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QComboBox, \
     QMessageBox, QScrollArea
+from WordCloud import generate_wordcloud, fetch_contents_from_urls
+from jamo import h2j, j2hcj
 
-from WordCloud import fetch_url_content_selenium, generate_wordcloud, fetch_contents_from_urls
 
 
 class CustomComboBox(QComboBox):
@@ -217,10 +218,8 @@ class MainWindow(QWidget):
             print(font)
             print(baseImage)
             # 워드 클라우드 생성
-            wordcloud_result = generate_wordcloud(all_content, font, baseImage, exclude_words,train_words)
-
-            print(wordcloud_result["tags"])
-
+            generate_wordcloud(all_content, font, baseImage, exclude_words,train_words)
+            print("finish!")
 
 
 if __name__ == '__main__':
