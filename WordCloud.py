@@ -56,18 +56,7 @@ def fetch_url_content(url):
             return raw_data.decode('latin-1', errors='ignore')
 """
 
-def get_jongsung_TF(sample_text):
-    sample_text_list = list(sample_text)
-    last_word = sample_text_list[-1]
-    last_word_jamo_list = list(j2hcj(h2j(last_word)))
-    last_jamo = last_word_jamo_list[-1]
 
-    jongsung_TF = "T"
-
-    if last_jamo in ['ㅏ', 'ㅑ', 'ㅓ', 'ㅕ', 'ㅗ', 'ㅛ', 'ㅜ', 'ㅠ', 'ㅡ', 'ㅣ', 'ㅘ', 'ㅚ', 'ㅙ', 'ㅝ', 'ㅞ', 'ㅢ', 'ㅐ', 'ㅔ', 'ㅟ', 'ㅖ', 'ㅒ']:
-        jongsung_TF = "F"
-
-    return jongsung_TF
 
 
 def fetch_contents_from_urls(urls):
@@ -139,10 +128,9 @@ def generate_wordcloud(content, font, baseImage, ew, tw):
     noun_adj_list = [word for word, tag in pos_tagged if tag in ['NNG', 'SL', 'NNP', 'VA+ETM', 'SH']]
     print(noun_adj_list)
     print("------------------최종 단어 제외 후 tag--------------------------")
-    exclude_words = ew + ['블로그', '글', '이미지','아이디','검색', '광고', '네이버','이웃','댓글','움','창', '초', '시']
     k_stopword = pd.read_csv('korean_stopword.csv')
     k_stopword = list(k_stopword['불용어'])
-    exclude_words = exclude_words +k_stopword
+    exclude_words = ew +k_stopword
 
 
     filtered_words = [word for word in noun_adj_list if word not in exclude_words]
@@ -191,7 +179,18 @@ def train_word(tw):
     subprocess.run(["powershell", "Set-ExecutionPolicy", "Unrestricted", "-Force"], input="y", text=True)
     subprocess.run(["powershell", "cd venv/Lib/site-packages/mecab/tools; echo y | .\\add-userdic-win.ps1"])# add-userdic-win.ps1와 mecab-ko-dic의 위치로 이동
 
+def get_jongsung_TF(sample_text):
+    sample_text_list = list(sample_text)
+    last_word = sample_text_list[-1]
+    last_word_jamo_list = list(j2hcj(h2j(last_word)))
+    last_jamo = last_word_jamo_list[-1]
 
+    jongsung_TF = "T"
+
+    if last_jamo in ['ㅏ', 'ㅑ', 'ㅓ', 'ㅕ', 'ㅗ', 'ㅛ', 'ㅜ', 'ㅠ', 'ㅡ', 'ㅣ', 'ㅘ', 'ㅚ', 'ㅙ', 'ㅝ', 'ㅞ', 'ㅢ', 'ㅐ', 'ㅔ', 'ㅟ', 'ㅖ', 'ㅒ']:
+        jongsung_TF = "F"
+
+    return jongsung_TF
 
 def save_tags_to_file(tags):
     default_filename = "TextMining.txt"

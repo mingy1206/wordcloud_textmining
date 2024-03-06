@@ -41,9 +41,18 @@ class MainWindow(QWidget):
         self.layout.addWidget(QLabel("글자폰트:"))  # 폰트 선택 섹션의 타이틀 추가
         self.fontSelector = CustomComboBox("Font", self)
         self.fontSelector.addItem("나눔고딕", QVariant("NanumGothic"))
+        self.fontSelector.addItem("나눔고딕에코", QVariant("NanumGothicEco"))
+        self.fontSelector.addItem("나눔명조", QVariant("NanumMyeongjo"))
+        self.fontSelector.addItem("나눔명조에코", QVariant("NanumMyeongjoEco"))
         self.fontSelector.addItem("나눔명조-옛한글", QVariant("NanumMyeongjo-YetHangul"))
+        self.fontSelector.addItem("나눔바른고딕", QVariant("NanumBrush"))
+        self.fontSelector.addItem("나눔바른팬", QVariant("NanumBarunpenR"))
         self.fontSelector.addItem("나눔손글씨펜", QVariant("NanumPen"))
         self.fontSelector.addItem("나눔손글씨붓", QVariant("NanumBrush"))
+        self.fontSelector.addItem("나눔스퀘어", QVariant("NanumSquareR"))
+
+
+
         self.layout.addWidget(self.fontSelector)
 
         # Base Image Selector with title
@@ -71,9 +80,9 @@ class MainWindow(QWidget):
         self.addTrainWordInput()
 
         # Submit Button
-        self.submitButton = QPushButton('Submit', self)
-        self.layout.addWidget(self.submitButton)
-        self.submitButton.clicked.connect(self.onSubmit)
+        self.createButton = QPushButton('Create', self)
+        self.layout.addWidget(self.createButton)
+        self.createButton.clicked.connect(self.onSubmit)
 
         # QScrollArea 설정
         self.scrollArea = QScrollArea(self)  # 현재 인스턴스를 부모로 하는 QScrollArea 생성
