@@ -1,6 +1,8 @@
 <h1>Wordcloud Maker</h1>
-블로그 상위 노출을 위한 키워드 추출기(2가지 기능 존재)
+블로그 상위 노출을 위한 키워드 추출기 (2가지 기능 존재)
+<br/>
 1. Text Mining
+<br/>
 2. Word Cloud
 
 ---
